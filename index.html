@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <title>Banking System</title>
+</head>
+<body onload="checkloginuser()">
+<div class="flex-box" id="dashboard">
+    <div class="row">
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Username</h5>
+              <a href="#" class="btn btn-primary" id="name"></a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Amount</h5>
+              <a href="#" class="btn btn-primary" id="amount"></a>
+            </div>
+          </div>
+        </div>
+        <div class=" row">
+            <div class="col-sm-3">
+                <input class="form-control" type="number" id="trans" name="trans">
+            </div>
+            <div class="col-sm-3" id="listusers">
+                <select class="form-select" name="users" id="userslist">
+                  </select>                
+            </div>
+            <div class="col-sm-3">
+                <button class="btn btn-success" id="send" name="send" onclick="sendmoney()">Send</button>
+            </div>
+            <div class="col-sm-3">
+                <span onclick="logOut()" class="btn btn-danger" id="signup">Logout</span>
+            </div>            
+        </div>      
+      </div>     
+</div>
+<div class="flex-box" id="forms">
+    <div class="box">
+        <h1>Signup Form</h1>
+
+        <label for="susername">Username</label>
+        <input type="text" class="form-control" id="susername" name="susername">
+
+        <label for="spassword">Password</label>
+        <input type="password" class="form-control" id="spassword" name="spassword">
+
+        <span onclick="signUP()" class="btn btn-success" id="signup">Signup</span>
+    </div>
+    <div class="box">
+            <h1>login Form</h1>
+            <label for="lusername">Username</label>
+            <input required type="text" class="form-control" id="lusername" name="lusername">
+    
+            <label for="lpassword">Password</label>
+            <input required type="password" class="form-control" id="lpassword" name="lpassword">
+    
+            <span type="submit" onclick="logIn()" class="btn btn-success" id="login">Login</span>
+    </div>
+</div>
+</body>
+<script>
+    let susername = document.getElementById("susername");
+    let spassword = document.getElementById("spassword");
+    let signup = document.getElementById("signup");
+    let lusername = document.getElementById("lusername");
+    let lpassword = document.getElementById("lpassword");
+    let login = document.getElementById("login");
+    let forms = document.getElementById("forms");
+    let dashboard = document.getElementById("dashboard");
+    let name = document.getElementById("name");
+    let amount = document.getElementById("amount");
+    let usersList = document.getElementById("userslist");
+    let trans = document.getElementById("trans");
+    // let optsel = document.getElementById("userslist");
+
+    dashboard.style.display = "none";
+    forms.style.display = "none";
+
+    function checkloginuser(){
+        checkLoginUser = JSON.parse(localStorage.getItem("logged") || "[]");
+        if(checkLoginUser.length > 0){
+            loggedUser();
+        }
+        else{
+            forms.style.display = "flex";
+        }
+
+    }
+    
+    function signUP(){
+        if(localStorage.getItem("accounts") === null){
+            let accounts = [{
+                username: susername.value,
+                password: spassword.value,
+                amount: 100
+            }];
+            localStorage.setItem("accounts", JSON.stringify(accounts));
+            console.log("success");
+        }
+        else{
+            accounts = JSON.parse(localStorage.getItem("accounts") || "[]");
+            console.log("# of accounts: " + accounts.length);
+            accounts.forEach(function(account, index) {
+                console.log("[" + index + "]: " + account.username);
+            });
+            var duplicate = accounts.filter(function (el)
+            {
+                if(el.username === susername.value){
+                    return 1
+                }
+                else{
+                    return 0;
+                }
+            }
+            );
+            if(duplicate.length > 0){
+                console.log("Account Already Exist");
+            }
+            else{
+                var account = {
+                    username: susername.value,
+                    password: spassword.value,
+                    amount: 100
+                };
+                accounts.push(account);
+                console.log("Added account #" + account.username);
+                localStorage.setItem("accounts", JSON.stringify(accounts));          
+            }
+
+        }
+        
+    }
+    function loggedUser(){
+        forms.style.display = "none";
+        dashboard.style.display = "flex";
+        accounts = JSON.parse(localStorage.getItem("accounts") || "[]");
+        user = JSON.parse(localStorage.getItem("logged") || "[]");
+        name.innerHTML = user[0].username;
+        amount.innerHTML = user[0].amount;
+        let list = accounts.filter(function (el)
+            {
+                if(el.username !==  user[0].username){
+                    return true;
+                }
+            }
+            );
+            // console.log(list);
+            for (var i = 0; i < list.length; i++) {
+                var optn = list[i];
+                var el = document.createElement("option");
+                el.textContent = optn.username;
+                el.value = optn.username;
+                usersList.appendChild(el);
+            }        
+    }
+    function logIn(){
+        accounts = JSON.parse(localStorage.getItem("accounts") || "[]");
+        let check = accounts.filter(function (el)
+            {
+                if(el.username === lusername.value && el.password === lpassword.value){
+                    return true;
+                }
+            }
+            );
+        if(check.length == 0){                
+            console.log(check);
+            alert("Invalid Credentials");
+        }else{
+            forms.style.display = "none";
+            dashboard.style.display = "flex";                
+            let logged = [{
+                username: check[0].username,
+                password: check[0].password,
+                amount: check[0].amount
+            }];
+            localStorage.setItem("logged", JSON.stringify(logged));
+            user = JSON.parse(localStorage.getItem("logged") || "[]");
+            name.innerHTML = user[0].username;
+            amount.innerHTML = user[0].amount;
+
+            let list = accounts.filter(function (el)
+            {
+                if(el.username !==  user[0].username){
+                    return true;
+                }
+            }
+            );
+            // console.log(list);
+            for (var i = 0; i < list.length; i++) {
+                var optn = list[i];
+                var el = document.createElement("option");
+                el.textContent = optn.username;
+                el.value = optn.username;
+                usersList.appendChild(el);
+            }
+        }  
+
+    }
+    function logOut(){
+        localStorage.removeItem("logged");
+        forms.style.display = "flex";
+        lusername.value = null;
+        lpassword.value = null;
+        dashboard.style.display = "none";
+    }
+    function sendmoney(){
+        accounts = JSON.parse(localStorage.getItem("accounts") || "[]");
+        user = JSON.parse(localStorage.getItem("logged") || "[]");
+        accounts.map(item => {
+            var temp = Object.assign({}, item);
+            if (temp.username === usersList.value) {
+                temp.amount = temp.amount + trans.value;
+            }
+            // if(temp.username === user.username){
+            //     temp.amount = temp.amount - trans.value;
+            // }
+            return temp;
+        }); 
+        // const upd_account = accounts.map(obj => {
+        //     if (obj.username === usersList.value) {
+        //     return {obj, amount: trans.value};
+        //     }
+        //     return obj;
+        // });
+        // const upd_user = user.map(obj => {
+        //     return {obj, amount: trans.value};
+            
+        // });
+        // console.log(usersList.value,trans.value );
+    }
+</script>
+</html>
