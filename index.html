@@ -81,7 +81,6 @@
     let amount = document.getElementById("amount");
     let usersList = document.getElementById("userslist");
     let trans = document.getElementById("trans");
-    // let optsel = document.getElementById("userslist");
 
     dashboard.style.display = "none";
     forms.style.display = "none";
@@ -134,7 +133,10 @@
                 };
                 accounts.push(account);
                 console.log("Added account #" + account.username);
-                localStorage.setItem("accounts", JSON.stringify(accounts));          
+                localStorage.setItem("accounts", JSON.stringify(accounts));
+                susername.value = "";
+                spassword.value = "";
+                alert("Account Added Successfully");
             }
 
         }
@@ -214,29 +216,35 @@
         dashboard.style.display = "none";
     }
     function sendmoney(){
-        accounts = JSON.parse(localStorage.getItem("accounts") || "[]");
+        if(!trans.value){
+            alert("KINDLY ENTER AMOUNT");
+            return;
+        }
         user = JSON.parse(localStorage.getItem("logged") || "[]");
-        accounts.map(item => {
+        if(trans.value > user[0].amount){
+            alert("YOU DONT HAVE ENOUGH AMOUNT");
+            return;
+        }
+        accounts = JSON.parse(localStorage.getItem("accounts") || "[]");
+        const updatedAccounts = accounts.map(item => {
             var temp = Object.assign({}, item);
             if (temp.username === usersList.value) {
-                temp.amount = temp.amount + trans.value;
+                temp.amount +=  Number(trans.value);
             }
-            // if(temp.username === user.username){
-            //     temp.amount = temp.amount - trans.value;
-            // }
+            if(temp.username === user[0].username){
+                temp.amount -= Number(trans.value);
+            }
             return temp;
-        }); 
-        // const upd_account = accounts.map(obj => {
-        //     if (obj.username === usersList.value) {
-        //     return {obj, amount: trans.value};
-        //     }
-        //     return obj;
-        // });
-        // const upd_user = user.map(obj => {
-        //     return {obj, amount: trans.value};
-            
-        // });
-        // console.log(usersList.value,trans.value );
+        });
+        const loggedUpdatedAccount = user.map(item => {
+            var temp = Object.assign({}, item);
+            temp.amount -=  Number(trans.value);
+            return temp;
+        });         
+        console.log(loggedUpdatedAccount);
+        localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
+        localStorage.setItem('logged', JSON.stringify(loggedUpdatedAccount));
+        
     }
 </script>
 </html>
